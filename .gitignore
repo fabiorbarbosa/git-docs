@@ -1,0 +1,52 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Logs and runtime files
+*.log
+logs/
+*.pid
+*.seed
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Archives and generated output
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+dist/
+build/
+out/
+coverage/
+
+# Dependency folders
+node_modules/
+vendor/

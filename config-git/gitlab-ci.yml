@@ -1,0 +1,12 @@
+include:
+  - project: 'devops/templates-globais' # Template da empresa
+    file: '/jobs/deploy.yml'
+  - local: '.gitlab-ci-custom.yml'     # Seu arquivo local
+
+Deploy-XXX:
+  extends: 
+    - Deploy-XXX          # Puxa a configuração do include global
+    - .meu-setup-webhook  # Puxa o seu curl
+  before_script:
+    - !reference [.meu-setup-webhook, before_script] # Roda o seu curl primeiro
+    - !reference [Deploy-XXX, before_script]          # Roda o before_script original depois
