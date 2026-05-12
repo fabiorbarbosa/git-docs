@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#e5e2e1",
+                    "on-primary-container": "#636565",
+                    "inverse-on-surface": "#2f3034",
+                    "on-background": "#e3e2e7",
+                    "surface-container": "#1e1f23",
+                    "on-secondary": "#303030",
+                    "primary": "#ffffff",
+                    "on-tertiary": "#313030",
+                    "secondary-fixed-dim": "#c6c6c6",
+                    "surface-variant": "#343539",
+                    "on-error-container": "#ffdad6",
+                    "on-surface-variant": "#c4c7c8",
+                    "inverse-surface": "#e3e2e7",
+                    "background": "#121317",
+                    "error-container": "#93000a",
+                    "surface-container-lowest": "#0d0e12",
+                    "secondary": "#c6c6c6",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "surface-dim": "#121317",
+                    "on-primary": "#2f3131",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "primary-container": "#e2e2e2",
+                    "on-tertiary-container": "#656464",
+                    "surface-container-highest": "#343539",
+                    "surface-bright": "#38393d",
+                    "on-secondary-fixed-variant": "#474747",
+                    "on-primary-fixed": "#1a1c1c",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "outline-variant": "#444748",
+                    "inverse-primary": "#5d5f5f",
+                    "on-secondary-container": "#b5b5b5",
+                    "outline": "#8e9192",
+                    "secondary-container": "#474747",
+                    "on-primary-fixed-variant": "#454747",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#c6c6c7",
+                    "tertiary-fixed": "#e5e2e1",
+                    "secondary-fixed": "#e2e2e2",
+                    "surface": "#121317",
+                    "on-surface": "#e3e2e7",
+                    "surface-container-high": "#292a2e",
+                    "surface-container-low": "#1a1b1f",
+                    "tertiary": "#ffffff",
+                    "on-secondary-fixed": "#1b1b1b",
+                    "error": "#ffb4ab",
+                    "surface-tint": "#c6c6c7",
+                    "primary-fixed": "#e2e2e2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "xl": "40px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "2xl": "64px",
+                    "container-max": "1200px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Geist"],
+                    "body-md": ["Geist"],
+                    "label-md": ["JetBrains Mono"],
+                    "headline-lg": ["Geist"],
+                    "display-lg": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "label-sm": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes scalePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes eyeBlink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+        @keyframes subtleGlow {
+            0%, 100% { opacity: 0.3; filter: blur(40px); }
+            50% { opacity: 0.6; filter: blur(60px); }
+        }
+        .animate-scale-pulse {
+            animation: scalePulse 3s ease-in-out infinite;
+            transform-origin: bottom right;
+        }
+        .animate-eye-blink {
+            animation: eyeBlink 4s infinite;
+            transform-origin: center;
+        }
+        .glow-effect {
+            animation: subtleGlow 4s ease-in-out infinite;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background border-b border-outline-variant">
+<div class="flex items-center justify-between px-md h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">menu</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-bold tracking-tighter text-primary">AXON</h1>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors duration-200">settings</span>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="relative flex flex-col items-center justify-center min-h-screen pt-16 pb-20 px-gutter">
+<!-- Status Indicator -->
+<div class="absolute top-24 flex items-center gap-xs px-sm py-1 bg-surface-container rounded-full border border-outline-variant">
+<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(255,255,255,0.6)]"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">System Active</span>
+</div>
+<!-- Robot Assistant Animated Container -->
+<div class="relative w-72 h-72 flex items-center justify-center">
+<!-- Subtle Glow Background -->
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-[40px] glow-effect"></div>
+<!-- Animated Robot Component -->
+<div class="relative z-10 animate-scale-pulse origin-bottom-right"><div class="relative flex items-center justify-center"><svg class="w-64 h-64" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<!-- Headset band -->
+<path class="text-primary" d="M100 30c-45 0-82 35-85 79" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="12"></path>
+<path class="text-primary" d="M185 109c-3-44-40-79-85-79" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="12"></path>
+<!-- Left Earpiece -->
+<rect class="fill-primary" height="50" rx="12" width="25" x="15" y="95"></rect>
+<!-- Right Earpiece -->
+<rect class="fill-primary" height="50" rx="12" width="25" x="160" y="95"></rect>
+<!-- Microphone arm -->
+<path class="text-primary" d="M165 145c0 25-35 45-70 45" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="8"></path>
+<rect class="fill-primary" height="12" rx="6" width="25" x="85" y="182"></rect>
+<!-- Main Head Body with Left Bubble Tail -->
+<path class="fill-primary" d="M100 45c-38.6 0-70 31.4-70 70 0 15.5 5 29.8 13.5 41.5L35 175l22-8.5c12.5 8.5 27.5 13.5 43 13.5 38.6 0 70-31.4 70-70s-31.4-70-70-70z"></path>
+<!-- Eyes and Smile (using background color to appear as cutouts) -->
+<g class="animate-eye-blink">
+<circle class="fill-background" cx="75" cy="105" r="8"></circle>
+<circle class="fill-background" cx="125" cy="105" r="8"></circle>
+</g>
+<path class="stroke-background" d="M80 145c10 5 30 5 40 0" fill="none" stroke-linecap="round" stroke-width="6"></path>
+</svg></div></div>
+</div>
+<!-- Interaction Prompt -->
+<div class="mt-xl text-center space-y-md">
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">I'm listening...</h2>
+<p class="font-body-md text-on-surface-variant max-w-[280px] mx-auto opacity-70">
+                Ask me to analyze data, optimize code, or manage your workspace.
+            </p>
+</div>
+<!-- Waveform Simulation -->
+<div class="mt-2xl flex items-end justify-center gap-1.5 h-12">
+<div class="w-1 bg-primary/20 h-4 rounded-full"></div>
+<div class="w-1 bg-primary/40 h-8 rounded-full"></div>
+<div class="w-1 bg-primary/60 h-10 rounded-full"></div>
+<div class="w-1 bg-primary h-6 rounded-full"></div>
+<div class="w-1 bg-primary/80 h-12 rounded-full"></div>
+<div class="w-1 bg-primary/40 h-7 rounded-full"></div>
+<div class="w-1 bg-primary/20 h-3 rounded-full"></div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-lg pb-safe bg-surface-container-lowest border-t border-outline-variant z-50">
+<button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-300 active:translate-y-[-2px]">
+<span class="material-symbols-outlined">history</span>
+</button>
+<!-- Active Tab: Assistant -->
+<button class="flex items-center justify-center text-primary scale-110 transition-all duration-300">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<div class="w-1 h-1 bg-primary rounded-full mt-1"></div>
+</div>
+</button>
+<button class="flex items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-300 active:translate-y-[-2px]">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</nav>
+</body></html>
