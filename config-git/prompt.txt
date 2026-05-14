@@ -1,0 +1,217 @@
+Use este prompt no **Plan Mode** do Cursor:
+
+```text
+Você está em Plan Mode no Cursor, dentro de um workspace que contém duas aplicações: Frontend e BFF. Cada aplicação possui seu próprio AGENTS.md.
+
+Antes de propor qualquer plano:
+1. Leia e respeite o AGENTS.md de cada aplicação.
+2. Identifique a estrutura do workspace.
+3. Analise separadamente Frontend e BFF.
+4. Não implemente código ainda.
+5. Não faça alterações em arquivos.
+6. Produza apenas um plano técnico detalhado e incremental.
+
+Contexto funcional atual:
+- Existe uma integração com um AGENT.
+- A integração atual já contempla comunicação via SSE.
+- Existe um botão flutuante visível em toda a aplicação após login.
+- Ao clicar no botão, abre um modal fullscreen.
+- O conversationId é armazenado no Redis.
+- O fluxo atual funciona para uma conversa/agente único.
+
+Objetivo:
+Evoluir a integração atual para um modelo estilo WhatsApp, com múltiplas conversas, uma por agente, preservando a identidade visual existente.
+
+Requisitos:
+- O botão flutuante deve continuar global após login.
+- O botão flutuante deve exibir badge com o total de mensagens não lidas.
+- A tela/modal deve seguir navegação estilo WhatsApp:
+  - lista de agentes/conversas;
+  - seleção de um agente;
+  - abertura da conversa;
+  - em mobile, navegação lista -> conversa -> voltar.
+- Cada agente deve ter uma conversa independente.
+- Ao clicar em um agente, recuperar do Redis o histórico da conversa daquele usuário com aquele agente.
+- A lista de agentes deve conter:
+  - identificação do agente;
+  - preview da última mensagem;
+  - data/hora da última mensagem;
+  - contador de mensagens não lidas por agente.
+- A lista deve ser sempre ordenada pela data da última mensagem recebida, mais recente primeiro.
+- Agentes podem enviar mensagens via broadcast para conversationIds dos usuários.
+- Ao receber mensagem via broadcast:
+  - atualizar a conversa correspondente;
+  - incrementar não lidas se a conversa não estiver aberta;
+  - atualizar badge global;
+  - mover agente/conversa para o topo conforme timestamp da última mensagem.
+- Ao abrir uma conversa:
+  - marcar mensagens daquele agente como lidas;
+  - zerar badge individual;
+  - recalcular badge global.
+- Reaproveitar a comunicação SSE existente sempre que possível.
+- Adaptar o modelo atual de Redis/conversationId para suportar múltiplos agentes por usuário.
+
+Sua tarefa:
+Crie um plano técnico completo para implementação, sem alterar arquivos.
+
+O plano deve conter:
+
+1. Leitura de contexto
+- Quais AGENTS.md foram encontrados.
+- Quais instruções relevantes de cada um impactam a implementação.
+- Estrutura geral do workspace.
+- Onde está o Frontend.
+- Onde está o BFF.
+
+2. Diagnóstico atual
+- Componentes do Frontend envolvidos no botão flutuante, modal fullscreen e chat atual.
+- Serviços/hooks/stores relacionados ao chat/agente.
+- Endpoints atuais do BFF relacionados a agent/chat/conversationId.
+- Fluxo SSE atual.
+- Uso atual do Redis.
+- Como o usuário autenticado é identificado.
+- Onde o conversationId é criado, lido e persistido.
+
+3. Proposta de arquitetura
+- Como modelar múltiplos agentes/conversas por usuário.
+- Como preservar compatibilidade com a conversa única atual, se necessário.
+- Como separar responsabilidades entre Frontend, BFF, Redis e SSE.
+- Quais partes devem ser reaproveitadas.
+- Quais partes precisam ser alteradas.
+
+4. Modelo de dados no Redis
+Proponha chaves e estruturas para:
+- conversationId por usuário/agente;
+- histórico de mensagens por usuário/agente;
+- metadata da conversa;
+- última mensagem;
+- timestamp da última mensagem;
+- contador de não lidas por agente;
+- contador global de não lidas, se fizer sentido;
+- deduplicação de eventos SSE/broadcast, se necessário.
+
+Explique tradeoffs entre hashes, sorted sets, lists/streams e TTLs.
+
+5. Contratos BFF/API
+Proponha endpoints ou ajustes para:
+- listar agentes/conversas ordenadas por última mensagem;
+- recuperar histórico por agentId;
+- enviar mensagem para um agentId;
+- marcar conversa como lida;
+- receber ou processar broadcast de agente;
+- expor estado inicial necessário para o Frontend.
+
+Para cada contrato, indicar:
+- método HTTP;
+- path sugerido;
+- request;
+- response;
+- erros esperados;
+- impacto nos endpoints existentes.
+
+6. Eventos SSE
+Proponha eventos para:
+- nova mensagem recebida;
+- atualização de conversa;
+- atualização de contador;
+- reorder da lista;
+- reconexão/sync inicial, se aplicável.
+
+Para cada evento, indicar payload sugerido e como o Frontend deve reagir.
+
+7. Estado e UI no Frontend
+Proponha:
+- estrutura de estado para conversas/agentes;
+- cache local ou store;
+- derivação do contador global;
+- atualização otimista quando usuário envia mensagem;
+- comportamento ao receber SSE;
+- estratégia para marcar como lido;
+- componentes novos ou alterados:
+  - botão flutuante com badge;
+  - modal fullscreen;
+  - lista de agentes/conversas;
+  - item de agente com badge;
+  - área da conversa;
+  - navegação mobile;
+  - estados vazios/loading/erro.
+
+8. Identidade visual
+- Como preservar os tokens, estilos, componentes e padrões visuais atuais.
+- Quais componentes existentes devem ser reaproveitados.
+- Como adaptar o layout para conceito WhatsApp sem parecer uma aplicação externa.
+
+9. Migração
+- Como migrar do fluxo de conversa única para múltiplas conversas.
+- Como tratar usuários que já possuem conversationId no Redis.
+- Como criar uma conversa default/agente atual.
+- Estratégia para deploy incremental sem quebrar o fluxo existente.
+
+10. Casos de borda
+Inclua estratégia para:
+- usuário sem histórico;
+- agentId desconhecido;
+- conversationId ausente no Redis;
+- Redis indisponível;
+- mensagem recebida enquanto modal está fechado;
+- mensagem recebida na conversa aberta;
+- mensagem recebida em conversa não aberta;
+- SSE reconectando;
+- eventos duplicados;
+- mensagens fora de ordem;
+- ordenação por timestamp;
+- múltiplas abas abertas;
+- logout/login;
+- permissões por usuário/agente.
+
+11. Testes
+Defina plano de testes para:
+- unitários no Frontend;
+- unitários no BFF;
+- integração BFF + Redis;
+- SSE;
+- ordenação;
+- contadores de não lidas;
+- marcação como lido;
+- migração/compatibilidade;
+- testes manuais de UI desktop/mobile.
+
+12. Plano incremental
+Crie uma sequência recomendada de implementação em etapas pequenas, por exemplo:
+- etapa 1: mapear e tipar modelo atual;
+- etapa 2: criar modelo Redis multi-agent;
+- etapa 3: endpoints BFF;
+- etapa 4: eventos SSE;
+- etapa 5: estado frontend;
+- etapa 6: UI estilo WhatsApp;
+- etapa 7: badges/contadores;
+- etapa 8: migração;
+- etapa 9: testes e hardening.
+
+Para cada etapa, informe:
+- objetivo;
+- arquivos prováveis a alterar;
+- riscos;
+- critérios de aceite;
+- testes recomendados.
+
+13. Perguntas em aberto
+Liste decisões que precisam ser confirmadas antes da implementação, como:
+- origem da lista de agentes;
+- formato canônico de agentId;
+- política de retenção do histórico;
+- limite de mensagens carregadas;
+- paginação;
+- comportamento esperado para broadcast;
+- regras de leitura em múltiplas abas;
+- necessidade de persistir unread global ou derivar dos individuais.
+
+Restrições:
+- Não implemente nada.
+- Não altere arquivos.
+- Não rode comandos destrutivos.
+- Não proponha refactor amplo desnecessário.
+- Use padrões existentes do workspace.
+- Respeite ambos os AGENTS.md.
+- O resultado final deve ser um plano claro o suficiente para ser aprovado e depois executado em etapas.
+```
