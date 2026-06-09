@@ -1,4 +1,4 @@
-#Validação de packages 
+**Validação de packages**
 
 Arquivo na raiz da solution como Directory.Build.targets:
 ```xml
