@@ -9,6 +9,7 @@ HEADROOM_EXTRAS="${HEADROOM_EXTRAS:-all}"
 HEADROOM_HOME="${HEADROOM_HOME:-$HOME/.headroom}"
 HEADROOM_VENV="${HEADROOM_VENV:-$HEADROOM_HOME/venv}"
 HEADROOM_PORT="${HEADROOM_PORT:-8787}"
+HEADROOM_TELEMETRY="${HEADROOM_TELEMETRY:-on}"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "Error: python3 is required." >&2
@@ -77,11 +78,11 @@ echo "  1. Make sure this is on PATH before other Python script dirs:"
 echo "     export PATH=\"$USER_BIN:\$PATH\""
 echo
 echo "  2. Start the proxy:"
-echo "     headroom proxy --port $HEADROOM_PORT"
+echo "     HEADROOM_TELEMETRY=\"$HEADROOM_TELEMETRY\" headroom proxy --port $HEADROOM_PORT --memory --code-aware --telemetry"
 echo
 echo "  3. Open the dashboard:"
 echo "     headroom dashboard"
 echo "     # or: http://127.0.0.1:$HEADROOM_PORT/dashboard"
 echo
 echo "For a custom OpenAI-compatible gateway upstream:"
-echo "     OPENAI_TARGET_API_URL=\"https://your-gateway.example.com\" headroom proxy --port $HEADROOM_PORT"
+echo "     OPENAI_TARGET_API_URL=\"https://your-gateway.example.com\" HEADROOM_TELEMETRY=\"$HEADROOM_TELEMETRY\" headroom proxy --port $HEADROOM_PORT --memory --code-aware --telemetry"
