@@ -34,23 +34,52 @@ if ([string]::IsNullOrWhiteSpace($HeadroomTelemetry)) {
     $HeadroomTelemetry = "on"
 }
 
-$python = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $python) {
-    $python = Get-Command python -ErrorAction SilentlyContinue
+$pythonCommand = $null
+$pythonArgs = @()
+
+$pythonCandidates = if ($isWindowsPlatform) {
+    @(
+        @{ Command = "py"; Args = @("-3.12") },
+        @{ Command = "py"; Args = @("-3") },
+        @{ Command = "python"; Args = @() },
+        @{ Command = "python3"; Args = @() }
+    )
+} else {
+    @(
+        @{ Command = "python3"; Args = @() },
+        @{ Command = "python"; Args = @() },
+        @{ Command = "py"; Args = @("-3") }
+    )
 }
 
-if (-not $python) {
-    throw "python3 or python is required."
+foreach ($candidate in $pythonCandidates) {
+    $cmd = Get-Command $candidate.Command -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        continue
+    }
+
+    try {
+        $version = & $cmd.Source @($candidate.Args) -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}'); raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $pythonCommand = $cmd.Source
+            $pythonArgs = @($candidate.Args)
+            $pythonVersion = $version
+            break
+        }
+    } catch {
+        continue
+    }
 }
 
-$pythonExe = $python.Source
+if (-not $pythonCommand) {
+    throw "Python 3.10+ was not found. Install Python from https://www.python.org/downloads/ and enable 'Add python.exe to PATH', or install the Python Launcher for Windows and retry."
+}
 
-$pythonVersion = & $pythonExe -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
-& $pythonExe -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 'Error: Headroom requires Python 3.10+.')"
+Write-Host "Using Python $pythonVersion at: $pythonCommand $($pythonArgs -join ' ')"
 
 $userBin = $HeadroomUserBin
 if ([string]::IsNullOrWhiteSpace($userBin)) {
-    $userBin = & $pythonExe -c "import site, pathlib; print(pathlib.Path(site.USER_BASE) / ('Scripts' if __import__('os').name == 'nt' else 'bin'))"
+    $userBin = & $pythonCommand @pythonArgs -c "import site, pathlib; print(pathlib.Path(site.USER_BASE) / ('Scripts' if __import__('os').name == 'nt' else 'bin'))"
 }
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($userBin)) {
     if ($isWindowsPlatform) {
@@ -79,7 +108,7 @@ $venvHeadroom = if ($isWindowsPlatform) {
 Write-Host "Installing Headroom into: $HeadroomVenv"
 New-Item -ItemType Directory -Force -Path $HeadroomHome, $userBin | Out-Null
 
-& $pythonExe -m venv $HeadroomVenv
+& $pythonCommand @pythonArgs -m venv $HeadroomVenv
 & $venvPython -m pip install --upgrade pip wheel setuptools
 & $venvPython -m pip install --upgrade --no-cache-dir "headroom-ai[$HeadroomExtras] @ git+https://github.com/headroomlabs-ai/headroom.git@$HeadroomRef"
 
