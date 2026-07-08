@@ -318,6 +318,12 @@ def run_cmd(
     if config.dry_run:
         return
 
+    resolved_cmd = list(cmd)
+    executable = shutil.which(resolved_cmd[0])
+    if not executable:
+        raise MigrationError(f"Required command not found on PATH: {resolved_cmd[0]}")
+    resolved_cmd[0] = executable
+
     env = os.environ.copy()
     env.update(
         {
@@ -329,7 +335,7 @@ def run_cmd(
         env.update(env_extra)
 
     process = subprocess.Popen(
-        cmd,
+        resolved_cmd,
         cwd=config.project,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
