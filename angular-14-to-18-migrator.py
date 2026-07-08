@@ -87,6 +87,7 @@ class Config:
     skip_install: bool
     skip_build: bool
     skip_tests: bool
+    install_force: bool
     ng_force: bool
     include_angular_eslint: bool
 
@@ -133,6 +134,16 @@ def parse_args() -> Config:
     parser.add_argument("--skip-install", action="store_true")
     parser.add_argument("--skip-build", action="store_true")
     parser.add_argument("--skip-tests", action="store_true")
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Shortcut for --install-force and --ng-force",
+    )
+    parser.add_argument(
+        "--install-force",
+        action="store_true",
+        help="Pass --force to the package manager install command",
+    )
     parser.add_argument("--ng-force", action="store_true")
     parser.add_argument(
         "--include-angular-eslint",
@@ -161,7 +172,8 @@ def parse_args() -> Config:
         skip_install=args.skip_install,
         skip_build=args.skip_build,
         skip_tests=args.skip_tests,
-        ng_force=args.ng_force,
+        install_force=args.install_force or args.force,
+        ng_force=args.ng_force or args.force,
         include_angular_eslint=args.include_angular_eslint,
     )
 
@@ -349,13 +361,13 @@ def run_cmd(
         raise MigrationError(f"Command failed: {rendered}")
 
 
-def install_cmd(package_manager: str) -> tuple[str, ...]:
+def install_cmd(package_manager: str, force: bool) -> tuple[str, ...]:
     if package_manager == "npm":
-        return ("npm", "install")
+        return ("npm", "install", "--force") if force else ("npm", "install")
     if package_manager == "yarn":
-        return ("yarn", "install")
+        return ("yarn", "install", "--force") if force else ("yarn", "install")
     if package_manager == "pnpm":
-        return ("pnpm", "install")
+        return ("pnpm", "install", "--force") if force else ("pnpm", "install")
     raise MigrationError(f"Unsupported package manager: {package_manager}")
 
 
@@ -542,7 +554,7 @@ def migrate(config: Config, log: Logger) -> None:
     assert current_major is not None
 
     if not config.skip_install:
-        run_cmd(install_cmd(config.package_manager), config, log)
+        run_cmd(install_cmd(config.package_manager, config.install_force), config, log)
 
     for major in range(current_major + 1, config.target_major + 1):
         package_json = load_package_json(config.project)
@@ -555,7 +567,7 @@ def migrate(config: Config, log: Logger) -> None:
             config.dry_run,
         )
         if not config.skip_install:
-            run_cmd(install_cmd(config.package_manager), config, log)
+            run_cmd(install_cmd(config.package_manager, config.install_force), config, log)
         build_if_available(config, load_package_json(config.project), log)
 
     run_standalone_migration(config, log)
