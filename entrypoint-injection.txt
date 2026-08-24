@@ -1,0 +1,51 @@
+// app-settings-config.service.ts
+
+// O Angular compilará isso normalmente como uma string.
+// O 'as any' garante que o TypeScript não reclame dos tipos antes da substituição.
+const __APP_CONFIG__ = 'DOCKER_INJECT_APP_CONFIG' as any;
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AppSettingsConfigService {
+  constructor() {
+    // Quando rodar no container, isso já terá sido transformado em um objeto real
+    console.log('Configurações injetadas:', __APP_CONFIG__);
+  }
+
+  get apiUrl(): string {
+    return __APP_CONFIG__.API_URL;
+  }
+}
+
+
+#!/bin/sh
+
+# 1. Caminho dos arquivos estáticos no container
+WWW_DIR="/usr/share/nginx/html"
+
+# 2. Encontra o arquivo main do Angular
+MAIN_FILE=$(find "$WWW_DIR" -name "main.*.js" -type f | head -n 1)
+
+if [ -n "$MAIN_FILE" ]; then
+  echo "Arquivo Angular localizado: $MAIN_FILE"
+  
+  # 3. Monta o objeto literal JavaScript com as variáveis do ambiente
+  # Importante: O formato precisa ser um objeto JS válido.
+  OBJETO_JS="{API_URL:'${API_URL}',ENVIRONMENT:'${NODE_ENV}'}"
+
+  echo "Injetando o objeto diretamente na constante __APP_CONFIG__..."
+  
+  # 4. Substitui a string alvo pelo objeto literal puro
+  # Nota: Buscamos pela string com aspas (simples ou duplas) e trocamos pelo objeto limpo
+  sed -i "s|'DOCKER_INJECT_APP_CONFIG'|${OBJETO_JS}|g" "$MAIN_FILE"
+  sed -i "s|\"DOCKER_INJECT_APP_CONFIG\"|${OBJETO_JS}|g" "$MAIN_FILE"
+
+  echo "Injeção direta realizada com sucesso!"
+else
+  echo "Erro: Arquivo main.*.js não foi encontrado."
+  exit 1
+fi
+
+# 5. Inicializa o servidor web
+exec nginx -g "daemon off;"
