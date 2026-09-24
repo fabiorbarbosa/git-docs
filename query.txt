@@ -1,0 +1,55 @@
+WITH data_referencia AS (
+    -- Altere a data aqui para testar os cenários (ex: 30/04/2026 ou 29/04/2026)
+    SELECT TO_DATE('29/04/2026', 'DD/MM/YYYY') AS data_ref FROM DUAL
+),
+datas_alvo AS (
+    SELECT 
+        r.data_ref,
+        -- Define dinamicamente qual dia buscar para cada um dos 3 meses anteriores
+        CASE 
+            WHEN r.data_ref = LAST_DAY(r.data_ref) THEN LAST_DAY(ADD_MONTHS(r.data_ref, -1))
+            ELSE ADD_MONTHS(r.data_ref, -1)
+        END AS data_mes_1,
+        
+        CASE 
+            WHEN r.data_ref = LAST_DAY(r.data_ref) THEN LAST_DAY(ADD_MONTHS(r.data_ref, -2))
+            ELSE ADD_MONTHS(r.data_ref, -2)
+        END AS data_mes_2,
+        
+        CASE 
+            WHEN r.data_ref = LAST_DAY(r.data_ref) THEN LAST_DAY(ADD_MONTHS(r.data_ref, -3))
+            ELSE ADD_MONTHS(r.data_ref, -3)
+        END AS data_mes_3
+    FROM 
+        data_referencia r
+),
+dados_pivotados AS (
+    SELECT 
+        -- Puxa o valor exato correspondente a cada uma das 3 datas calculadas
+        MAX(CASE WHEN TRUNC(t.data_registro) = TRUNC(a.data_mes_1) THEN t.valor END) AS valor_mes_1,
+        MAX(CASE WHEN TRUNC(t.data_registro) = TRUNC(a.data_mes_2) THEN t.valor END) AS valor_mes_2,
+        MAX(CASE WHEN TRUNC(t.data_registro) = TRUNC(a.data_mes_3) THEN t.valor END) AS valor_mes_3
+    FROM 
+        sua_tabela t
+    CROSS JOIN 
+        datas_alvo a
+    WHERE 
+        TRUNC(t.data_registro) IN (TRUNC(a.data_mes_1), TRUNC(a.data_mes_2), TRUNC(a.data_mes_3))
+)
+SELECT 
+    valor_mes_1,
+    valor_mes_2,
+    valor_mes_3,
+    -- Média aritmética simples desconsiderando valores nulos (caso algum dia não tenha registro)
+    ROUND((NVL(valor_mes_1, 0) + NVL(valor_mes_2, 0) + NVL(valor_mes_3, 0)) / 
+          (CASE WHEN valor_mes_1 IS NOT NULL THEN 1 ELSE 0 END +
+           CASE WHEN valor_mes_2 IS NOT NULL THEN 1 ELSE 0 END +
+           CASE WHEN valor_mes_3 IS NOT NULL THEN 1 ELSE 0 END), 2) AS media_do_dia,
+    -- Desvio padrão calculado diretamente a partir das colunas projetadas
+    ROUND(STDDEV(v), 2) AS desvio_padrao
+FROM 
+    dados_pivotados
+-- Truque para calcular o desvio padrão de colunas unindo-as temporariamente em linhas
+UNPIVOT (v FOR origem IN (valor_mes_1, valor_mes_2, valor_mes_3))
+GROUP BY 
+    valor_mes_1, valor_mes_2, valor_mes_3;
